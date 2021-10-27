@@ -20,6 +20,10 @@ def sayHello(ack,respond,command, say):
     ack()
     say('hello Capybara')
 
+@app.command('/speak')
+def saySpeakingOrder(ack,command,say):
+    ack()
+    say('my awesome speaking command')
 
 # Start your app
 if __name__ == "__main__":
