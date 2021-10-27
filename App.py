@@ -14,7 +14,14 @@ app = App(
 # Add functionality here
 # @app.event("app_home_opened") etc
 
+@app.command('/hellocapybara')
+def sayHello(ack,respond,command, say):
+    print("line 19")
+    ack()
+    say('hello Capybara')
+
 
 # Start your app
 if __name__ == "__main__":
     app.start(port=int(os.environ.get("PORT", 3000)))
+
