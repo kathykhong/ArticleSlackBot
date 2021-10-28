@@ -24,29 +24,28 @@ def sayHello(ack,respond,command, say):
 
 @app.command('/speak')
 def saySpeakingOrder(ack,command,say):
-    convertToDict = json.dumps(command)
-    convertDictToString = json.loads(convertToDict)
-    if "text" in convertDictToString:
-        inputString = convertDictToString["text"]
-        names = inputString.split()
-        random.shuffle(names)
-        outputString = ' '.join(names)
-        ack()
-        say(outputString)
+    commandDict = json.dumps(command)
+    commandStr = json.loads(commandDict)
+    names = []
+    namesStr = ''
+    
+    if "text" in commandStr:
+        commandText = commandStr["text"]
+        names = commandText.split()
     else:
-        channelID = convertDictToString["channel_id"]
+        channelID = commandStr["channel_id"]
         convoInfo = app.client.conversations_members(channel=channelID)
         members = convoInfo["members"]
-        names = []
         for member in members:
-            moreGarbage = app.client.users_info(user=member)
-            name = moreGarbage["user"]["real_name"]
+            userInfo = app.client.users_info(user=member)
+            name = userInfo["user"]["real_name"]
             if name != 'SuperBot':
                 names.append(name)
-        random.shuffle(names)
-        outputString = ' '.join(names)
-        ack()
-        say(outputString)
+
+    random.shuffle(names)
+    namesStr = '\n'.join(names)
+    ack()
+    say(namesStr)
 
 # Start your app
 if __name__ == "__main__":
