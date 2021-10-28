@@ -8,15 +8,13 @@
 2. In Applications -> Python, open the `Install Certificates.command` file
 3. Install ngrok: https://ngrok.com/download
 4. Move the ngrok file into /usr/local/bin: `mv ngrok /usr/local/bin`
-5. In ArticleSlackBot terminal, install the following dependencies (use `pip` or `pip3`):
+5. In ArticleSlackBot terminal, install the dependencies using the following (`pip` or `pip3`):
 ```
-pip install slack_bolt
-pip install python-dotenv
 pip install -r requirements.txt
 ```
 
 
-## Running the App
+## Running the App (Locally)
 
 In local terminal: `ngrok http 3000`
 
@@ -30,6 +28,7 @@ python3 app.py
 ## Local development
 
 ### Adding new dependencies:
+Whenever you add a new dependencies (`pip install` or otherwise) we need to add it to our requirements. This way anyone can just execute `pip install -r requirements.txt` and they should have everything they need to run and develop this app. 
 ```
 pip freeze
 pip install -r requirements.txt
@@ -64,3 +63,6 @@ def sayHelloCapybara(ack,say):
 
 ### Internal Server Error 500 on ngrok:
 - In `pyenv.cfg`, ensure that `home = /usr/local/bin`
+
+### Slack error "displatch_failed"
+- Ensure your ngrok server and slack backend are up and running properly
