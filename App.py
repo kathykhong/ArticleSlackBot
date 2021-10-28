@@ -28,12 +28,13 @@ request = requests.post('https://bitbucket.org/site/oauth2/authorize')
 def showPRs(ack,command,say):
     print("line 29")
     ack()
-    response = requests.get("https://bitbucket.org/!api/2.0/repositories/articledev/article/pullrequests", headers = {"Authorization": "Bearer eieVj2-lQNlEct-6-qb4llPSsG2NZ6tnK_h5ppmBBnJOmRMr6_fYqcTtF1sJS46WFQsFw5xJQLnb-yxwmdl9oX2yblMWGSAz6542smqv028VdEa56ZZFvKlV"})
+    response = requests.get("https://bitbucket.org/!api/2.0/repositories/articledev/kraken-product/pullrequests", headers = {"Authorization": "Bearer eieVj2-lQNlEct-6-qb4llPSsG2NZ6tnK_h5ppmBBnJOmRMr6_fYqcTtF1sJS46WFQsFw5xJQLnb-yxwmdl9oX2yblMWGSAz6542smqv028VdEa56ZZFvKlV"})
     if response.status_code == 200:
         print('Success!')
     elif response.status_code == 404:
         print('Not Found.')
-    print(response.content)
+    data = response.json()
+    print(data)
     say("prs")
 
 # Start your app
