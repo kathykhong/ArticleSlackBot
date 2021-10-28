@@ -24,20 +24,29 @@ def sayHello(ack,respond,command, say):
 
 @app.command('/speak')
 def saySpeakingOrder(ack,command,say):
-    # get input string
     convertToDict = json.dumps(command)
     convertDictToString = json.loads(convertToDict)
-    inputString = convertDictToString["text"] # TODO: implement functionality where text is null
-
-    # convert string into names
-    names = inputString.split()
-    random.shuffle(names)
-
-    # convert list of names into string
-    outputString = ' '.join(names)
-
-    ack()
-    say(outputString)
+    if "text" in convertDictToString:
+        inputString = convertDictToString["text"]
+        names = inputString.split()
+        random.shuffle(names)
+        outputString = ' '.join(names)
+        ack()
+        say(outputString)
+    else:
+        channelID = convertDictToString["channel_id"]
+        convoInfo = app.client.conversations_members(channel=channelID)
+        members = convoInfo["members"]
+        names = []
+        for member in members:
+            moreGarbage = app.client.users_info(user=member)
+            name = moreGarbage["user"]["real_name"]
+            if name != 'SuperBot':
+                names.append(name)
+        random.shuffle(names)
+        outputString = ' '.join(names)
+        ack()
+        say(outputString)
 
 # Start your app
 if __name__ == "__main__":
