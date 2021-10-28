@@ -1,7 +1,9 @@
 import os
+import requests
 # Use the package we installed
-from slack_bolt import App
+from slack_bolt import App, response
 from dotenv import load_dotenv
+# headers = {"Authorization": "Bearer tmrp5rrXRcf4xMegTWmRCVjvyusMZ1YUBBuv33iMSIQsGuRmOpAtL831JkwKOdlEes8WFuT9j2DRm_K63-xemzCfeGoc85BCBNA3bXny0Gz7N2ov5mJwfHFb"}
 
 load_dotenv()
 
@@ -20,6 +22,19 @@ def sayHello(ack,respond,command, say):
     ack()
     say('hello Capybara')
 
+request = requests.post('https://bitbucket.org/site/oauth2/authorize')
+
+@app.command('/prs')
+def showPRs(ack,command,say):
+    print("line 29")
+    ack()
+    response = requests.get("https://bitbucket.org/!api/2.0/repositories/articledev/article/pullrequests", headers = {"Authorization": "Bearer eieVj2-lQNlEct-6-qb4llPSsG2NZ6tnK_h5ppmBBnJOmRMr6_fYqcTtF1sJS46WFQsFw5xJQLnb-yxwmdl9oX2yblMWGSAz6542smqv028VdEa56ZZFvKlV"})
+    if response.status_code == 200:
+        print('Success!')
+    elif response.status_code == 404:
+        print('Not Found.')
+    print(response.content)
+    say("prs")
 
 # Start your app
 if __name__ == "__main__":
