@@ -19,7 +19,7 @@ def sayHello(ack,say):
     say('hello Capybara')
 
 @app.command('/scrum')
-def GenerateScrumOrderAndWordOfTheDay(ack,command,say):
+def generateScrumOrderAndWordOfTheDay(ack,command,say):
     ack()
     commandDict = json.dumps(command)
     commandStr = json.loads(commandDict)
