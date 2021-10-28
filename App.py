@@ -1,25 +1,20 @@
 import os
 import json
 import requests
-# Use the package we installed
-from slack_bolt import App, response
+import random
+from slack_bolt import App
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-# headers = {"Authorization": "Bearer tmrp5rrXRcf4xMegTWmRCVjvyusMZ1YUBBuv33iMSIQsGuRmOpAtL831JkwKOdlEes8WFuT9j2DRm_K63-xemzCfeGoc85BCBNA3bXny0Gz7N2ov5mJwfHFb"}
 
 load_dotenv()
 
-# Initializes your app with your bot token and signing secret
 app = App(
     token=os.environ.get("SLACK_BOT_TOKEN"),
     signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
 )
 
-# Add functionality here
-# @app.event("app_home_opened") etc
-
 @app.command('/hellocapybara')
-def sayHello(ack,respond,command, say):
-    print("line 19")
+def sayHello(ack,say):
     ack()
     say('hello Capybara')
 
@@ -31,22 +26,22 @@ def showPRs(ack,command,say):
 
     commandDict = json.dumps(command)
     commandStr = json.loads(commandDict)
-    print(commandStr)
+   
     
 
     if "text" in commandStr:
         repoName = commandStr["text"]
-        print(repoName)
-        url="https://bitbucket.org/!api/2.0/repositories/articledev/{}/pullrequests".format(repoName)
-        print(url)
 
-        response = requests.get(url, headers = {"Authorization": "Bearer 30_UNFGGudTn56nGqt4enyLqCMu0AD90_AF7FKPbFMdXaUIOmLFl8Nf7nMyt43W5P_O6ZLny6JPXdYEYFIx6q0oTqi2vhhcau2F9Qyh8tCNUM5Sf0whqZX3d"})
-        # data = response.json()
-        # print(data) 
-        # print("the status is" + str(response.status_code))
+        url="https://bitbucket.org/!api/2.0/repositories/articledev/{}/pullrequests".format(repoName)
+       
+
+        response = requests.get(url, headers = {"Authorization": "Bearer aCZIWfQo3f3NdSweb9Lr5meleLH7FjhdcYE4xbwYr_Cyk8Lb4PHQTq7p5hLE1xwZEsVGYrpXHcoWyAw1wNsvc9jb2FBTl95JuXglyTZ_OLOLCT1ZGSSy1jPn"})
+        
+       
         if response.status_code == 200:
             print('Success!')
             data = response.json()
+            
             
             if "values" in data:
                 pullrequestslist = data["values"]
@@ -70,8 +65,50 @@ def showPRs(ack,command,say):
 
 
 
+@app.command('/scrum')
+def generateScrumOrderAndWordOfTheDay(ack,command,say):
+    ack()
+    commandDict = json.dumps(command)
+    commandStr = json.loads(commandDict)
+    names = []
+    namesStr = ''
+    
+    if "text" in commandStr:
+        commandText = commandStr["text"]
+        names = commandText.split()
+    else:
+        channelID = commandStr["channel_id"]
+        convoInfo = app.client.conversations_members(channel=channelID)
+        members = convoInfo["members"]
+        for member in members:
+            userInfo = app.client.users_info(user=member)
+            name = userInfo["user"]["real_name"]
+            if name != 'Capybara':
+                names.append(name)
 
-# Start your app
+    random.shuffle(names)
+    namesStr = '\n'.join(names)
+    say(scrapeWordOfTheDay() + '\n\n\n' + namesStr)
+
+def scrapeWordOfTheDay():
+    url = 'https://www.dictionary.com/e/word-of-the-day/'
+    try:
+        r = requests.get(url)
+        r.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        print(err)
+
+    soup = BeautifulSoup(r.content, 'html.parser')
+
+    date = soup.find('div', class_='otd-item-headword__date').text.strip()
+    word = soup.find('div', class_='otd-item-headword__word').text.strip()
+    pronunciation = soup.find('div', class_='otd-item-headword__pronunciation').text.strip()
+    definition = soup.find('div', class_='otd-item-headword__pos-blocks').text.strip()
+
+    wordOfTheDay = '*' + date + '*' + '\n' + word + '\n' + pronunciation + '\n' + definition
+
+    return wordOfTheDay
+
 if __name__ == "__main__":
     app.start(port=int(os.environ.get("PORT", 3000)))
 
