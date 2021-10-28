@@ -13,12 +13,13 @@ app = App(
     signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
 )
 
-@app.command('/hellocapybara')
+@app.command('/hellocapy')
 def sayHello(ack,say):
     ack()
-    say('hello Capybara')
+    greeting = "Hi! I'm Capy the Butler. I'm here to give you the word of the day, daily stand up support, and list pull requests for your repo."
+    say(greeting)
 
-request = requests.post('https://bitbucket.org/site/oauth2/authorize')
+
 
 @app.command('/prs')
 def showPRs(ack,command,say):
@@ -35,7 +36,7 @@ def showPRs(ack,command,say):
         url="https://bitbucket.org/!api/2.0/repositories/articledev/{}/pullrequests".format(repoName)
        
 
-        response = requests.get(url, headers = {"Authorization": "Bearer aCZIWfQo3f3NdSweb9Lr5meleLH7FjhdcYE4xbwYr_Cyk8Lb4PHQTq7p5hLE1xwZEsVGYrpXHcoWyAw1wNsvc9jb2FBTl95JuXglyTZ_OLOLCT1ZGSSy1jPn"})
+        response = requests.get(url, headers = {"Authorization": "Bearer <<oAuth access token>>"})
         
        
         if response.status_code == 200:
