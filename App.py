@@ -1,24 +1,50 @@
 import os
 import requests
-from dotenv import load_dotenv
+import json
+import random
 from slack_bolt import App
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 
 load_dotenv()
 
-# Initializes your app with your bot token and signing secret
 app = App(
     token=os.environ.get("SLACK_BOT_TOKEN"),
     signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
 )
 
 @app.command('/hellocapybara')
-def sayHello(ack,command,say):
+def sayHello(ack,say):
     ack()
     say('hello Capybara')
 
+@app.command('/speak')
+def saySpeakingOrder(ack,command,say):
+    ack()
+    commandDict = json.dumps(command)
+    commandStr = json.loads(commandDict)
+    names = []
+    namesStr = ''
+    
+    if "text" in commandStr:
+        commandText = commandStr["text"]
+        names = commandText.split()
+    else:
+        channelID = commandStr["channel_id"]
+        convoInfo = app.client.conversations_members(channel=channelID)
+        members = convoInfo["members"]
+        for member in members:
+            userInfo = app.client.users_info(user=member)
+            name = userInfo["user"]["real_name"]
+            if name != 'SuperBot':
+                names.append(name)
+
+    random.shuffle(names)
+    namesStr = '\n'.join(names)
+    say(namesStr)
+
 @app.command('/wotd')
-def scrapeWotd(ack,command,say):
+def scrapeWotd(ack,say):
     ack()
 
     url = 'https://www.dictionary.com/e/word-of-the-day/'
@@ -39,7 +65,6 @@ def scrapeWotd(ack,command,say):
 
     say(wordOfTheDay)
 
-# Start your app
 if __name__ == "__main__":
     app.start(port=int(os.environ.get("PORT", 3000)))
 
