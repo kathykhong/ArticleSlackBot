@@ -1,6 +1,6 @@
 import os
-import requests
 import json
+import requests
 import random
 from slack_bolt import App
 from bs4 import BeautifulSoup
@@ -17,6 +17,53 @@ app = App(
 def sayHello(ack,say):
     ack()
     say('hello Capybara')
+
+request = requests.post('https://bitbucket.org/site/oauth2/authorize')
+
+@app.command('/prs')
+def showPRs(ack,command,say):
+    ack()
+
+    commandDict = json.dumps(command)
+    commandStr = json.loads(commandDict)
+   
+    
+
+    if "text" in commandStr:
+        repoName = commandStr["text"]
+
+        url="https://bitbucket.org/!api/2.0/repositories/articledev/{}/pullrequests".format(repoName)
+       
+
+        response = requests.get(url, headers = {"Authorization": "Bearer aCZIWfQo3f3NdSweb9Lr5meleLH7FjhdcYE4xbwYr_Cyk8Lb4PHQTq7p5hLE1xwZEsVGYrpXHcoWyAw1wNsvc9jb2FBTl95JuXglyTZ_OLOLCT1ZGSSy1jPn"})
+        
+       
+        if response.status_code == 200:
+            print('Success!')
+            data = response.json()
+            
+            
+            if "values" in data:
+                pullrequestslist = data["values"]
+                megaString = '*' + "PRS to review for the " + repoName + " repo" + ":" +  '*' '\n'
+                for pr in pullrequestslist:
+                    title = pr["title"]
+                    authorObject = pr["author"]
+                    author = authorObject["display_name"]
+                    linkObject = pr["links"]
+                    htmlObject = linkObject["html"]
+                    link=htmlObject["href"]
+                    megaString = megaString + '*' + title + '*' + '\n' + "Author: " + author + '\n' + link + '\n' + '\n'
+        
+            say(megaString)
+        elif response.status_code == 404:
+            print('Not Found.')
+           
+    else: 
+        say("Command is missing the name of the repository. Please try again:)")
+    
+
+
 
 @app.command('/scrum')
 def generateScrumOrderAndWordOfTheDay(ack,command,say):
