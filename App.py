@@ -84,9 +84,11 @@ def generateScrumOrderAndWordOfTheDay(ack,command,say):
         for member in members:
             userInfo = app.client.users_info(user=member)
             name = userInfo["user"]["real_name"]
-            if name != 'Capybara':
+            isBot = bool(userInfo["user"]["is_bot"])
+            if isBot:
+                pass
+            else:
                 names.append(name)
-
     random.shuffle(names)
     namesStr = '\n'.join(names)
     say(scrapeWordOfTheDay() + '\n\n\n' + namesStr)
