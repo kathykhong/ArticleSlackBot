@@ -28,44 +28,54 @@ def showPRs(ack,command,say):
     commandDict = json.dumps(command)
     commandStr = json.loads(commandDict)
    
-    
-
     if "text" in commandStr:
         repoName = commandStr["text"]
-
-        url="https://bitbucket.org/!api/2.0/repositories/articledev/{}/pullrequests".format(repoName)
-       
-
-        response = requests.get(url, headers = {"Authorization": "Bearer <<oAuth access token>>"})
-        
-       
-        if response.status_code == 200:
-            print('Success!')
-            data = response.json()
-            
-            
-            if "values" in data:
-                pullrequestslist = data["values"]
-                megaString = '*' + "PRS to review for the " + repoName + " repo" + ":" +  '*' '\n'
-                for pr in pullrequestslist:
-                    title = pr["title"]
-                    authorObject = pr["author"]
-                    author = authorObject["display_name"]
-                    linkObject = pr["links"]
-                    htmlObject = linkObject["html"]
-                    link=htmlObject["href"]
-                    megaString = megaString + '*' + title + '*' + '\n' + "Author: " + author + '\n' + link + '\n' + '\n'
-        
-            say(megaString)
-        elif response.status_code == 404:
-            print('Not Found.')
-           
-    else: 
-        say("Command is missing the name of the repository. Please try again:)")
+        splitRepoName = repoName.split()
     
+        if (len(splitRepoName) < 2):
+             say("Command missing a repo name or an access token")
+        elif (len(splitRepoName) > 2):
+             say("Command requires only a repo name followed access token")
+
+        else: 
+            url="https://bitbucket.org/!api/2.0/repositories/articledev/{}/pullrequests".format(splitRepoName[0])
+            response = requests.get(url, headers = {"Authorization": "Bearer " + splitRepoName[1]})
+           
+            data = response.json()
+
+            if ('pagelen' in data):
+                print('Success!')
+            
+            
+                if "values" in data:
+                    pullrequestslist = data["values"]
+                    if (len(pullrequestslist) == 0):
+                        say("There are currently no open pull requests for " + "*" + splitRepoName[0] + "*")
+
+                    else :
+                        megaString = '*' + "PRS to review for the " + splitRepoName[0] + " repo" + ":" +  '*' '\n'
+                        for pr in pullrequestslist:
+                            title = pr["title"]
+                            authorObject = pr["author"]
+                            author = authorObject["display_name"]
+                            linkObject = pr["links"]
+                            htmlObject = linkObject["html"]
+                            link=htmlObject["href"]
+                            megaString = megaString + '*' + title + '*' + '\n' + "Author: " + author + '\n' + link + '\n' + '\n'
+                            say(megaString)
+            elif ('error' in data):
+                if ((data["error"])["message"] == 'Access token expired.'):
+                    say("The access token is incorrect or expired. Please try again.")
+                elif ((data["error"])["message"]  == 
+                "The requested repository either does not exist or you do not have access. If you believe this repository exists and you have access, make sure you're authenticated."):
+                    say("The requested repository " + "*" + splitRepoName[0] + "*" + " either does not exist or is spelled incorrectly. Please try again.")
 
 
-
+    else: 
+        say("The command is missing both the repo name and access token")
+           
+   
+    
 @app.command('/scrum')
 def generateScrumOrderAndWordOfTheDay(ack,command,say):
     ack()
